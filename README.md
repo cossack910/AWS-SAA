@@ -1,6 +1,8 @@
 # 目次
 
-- 初期対応.md
+- 1.初期対応.md
   - AWSCloudTrail.md
-- AWS グローバルインフラ構成.md
-- IAM.md
+- 2.AWS グローバルインフラ構成.md
+
+- 3-1.IAM.md
+- 3-2.IAM 設計.md
