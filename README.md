@@ -1,8 +1,10 @@
-# 目次
+# 方針
 
-- 1.初期対応.md
-  - AWSCloudTrail.md
-- 2.AWS グローバルインフラ構成.md
+資格取得よりはハンズオン重視で
 
-- 3-1.IAM.md
-- 3-2.IAM 設計.md
+Cfn を使用する。
+
+## その他
+
+サービスのプレフィックスは以下ドキュメントのトピックから
+https://docs.aws.amazon.com/ja_jp/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html
