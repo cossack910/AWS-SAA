@@ -6,6 +6,11 @@ Resources:
     Properties:
       GroupName: "Application"
 
+  OperationGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: "Operation"
+
   ApplicationPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -39,3 +44,26 @@ Resources:
             Resource: "*"
       Groups:
         - !Ref ApplicationGroup
+        - !Ref OperationGroup
+
+  OperationPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: Operation
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "cloudwatch:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - "cloudtrail:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - "config:*"
+            Resource: "*"
+      Groups:
+        - !Ref OperationGroup
