@@ -1,10 +1,15 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "stack casestudy-iam-role"
 
+# Cfn作成・更新時にキーペアと許可IPを入力
 Parameters:
   KeyPair:
     Description: The EC2 Key Pair to allow SSH access to the instance
     Type: "AWS::EC2::KeyPair::KeyName"
+
+  MyIP:
+    Description: IP address allowed to access EC2
+    Type: String
 
 Resources:
   EC2SG:
@@ -12,12 +17,12 @@ Resources:
     Properties:
       GroupName: casestudy-iam-role-sg
       GroupDescription: Allow SSHOnly
-      VpcId: "vpc-cc81bbab" #すぐ消すのでデフォルトのやつをハードコーディング
+      VpcId: "vpc-06c1c9197507c6faa" #すぐ消すのでデフォルトのやつをハードコーディング
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: "0.0.0.0/0" #ガバガバ
+          CidrIp: !Ref MyIP
 
   EC2:
     Type: "AWS::EC2::Instance"
