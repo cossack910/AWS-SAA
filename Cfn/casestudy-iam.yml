@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "casestudy-iam"
 Resources:
+  # グループ作成
   ApplicationGroup:
     Type: AWS::IAM::Group
     Properties:
@@ -11,6 +12,7 @@ Resources:
     Properties:
       GroupName: "Operation"
 
+  # ポリシー作成
   ApplicationPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
@@ -65,5 +67,60 @@ Resources:
             Action:
               - "config:*"
             Resource: "*"
+      Groups:
+        - !Ref OperationGroup
+
+  # User及び認証情報作成
+  Engineer1Password:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        PasswordLength: 16
+        SecretStringTemplate: "{}"
+
+  Engineer1:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: "CaseStudy-Engineer1"
+      Path: "/"
+      LoginProfile:
+        Password: !Sub "{{resolve:secretsmanager:${Engineer1Password}:SecretString:password::}}"
+      Groups:
+        - !Ref ApplicationGroup
+
+  Engineer2Password:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        PasswordLength: 16
+        SecretStringTemplate: "{}"
+
+  Engineer2:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: "CaseStudy-Engineer2"
+      Path: "/"
+      LoginProfile:
+        Password: !Sub "{{resolve:secretsmanager:${Engineer2Password}:SecretString:password::}}"
+      Groups:
+        - !Ref ApplicationGroup
+
+  OperaterPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        PasswordLength: 16
+        SecretStringTemplate: "{}"
+
+  Operater:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: "CaseStudy-Operater"
+      Path: "/"
+      LoginProfile:
+        Password: !Sub "{{resolve:secretsmanager:${OperaterPassword}:SecretString:password::}}"
       Groups:
         - !Ref OperationGroup
