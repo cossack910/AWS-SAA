@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "stack casestudy-iam-role"
+
+Parameters:
+  KeyPair:
+    Description: The EC2 Key Pair to allow SSH access to the instance
+    Type: "AWS::EC2::KeyPair::KeyName"
+
+Resources:
+  EC2SG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: casestudy-iam-role-sg
+      GroupDescription: Allow SSHOnly
+      VpcId: "vpc-cc81bbab" #すぐ消すのでデフォルトのやつをハードコーディング
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0" #ガバガバ
+
+  EC2:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: ami-0506f0f56e3a057a4 #無料利用枠 AmazonLinux2023
+      KeyName: !Ref KeyPair
+      InstanceType: t2.micro #無料利用枠
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref EC2SG
+      Tags:
+        - Key: Name
+          Value: Batch-S3
