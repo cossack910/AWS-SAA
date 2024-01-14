@@ -21,13 +21,13 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref AllowIP
+          CidrIp: !Ref AllowIP #スタック作成・更新時に入力されたIPを許可
 
   EC2:
     Type: "AWS::EC2::Instance"
     Properties:
       ImageId: ami-0506f0f56e3a057a4 #無料利用枠 AmazonLinux2023
-      KeyName: !Ref KeyPair
+      KeyName: !Ref KeyPair # スタックの作成・更新時に入力されたキーペアを設定する
       InstanceType: t2.micro #無料利用枠
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
