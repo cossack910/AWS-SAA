@@ -1,14 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "stack casestudy-iam-role"
 
-# Cfn作成・更新時にキーペアと許可IPを入力
 Parameters:
   KeyPair:
-    Description: The EC2 Key Pair to allow SSH access to the instance
+    Description: Cfn作成・更新時にキーペアを入力してください。
     Type: "AWS::EC2::KeyPair::KeyName"
 
-  MyIP:
-    Description: IP address allowed to access EC2
+  AllowIP:
+    Description: アクセスを許可するIPをCfn更新・作成時に入力してください
     Type: String
 
 Resources:
@@ -17,12 +16,12 @@ Resources:
     Properties:
       GroupName: casestudy-iam-role-sg
       GroupDescription: Allow SSHOnly
-      VpcId: "vpc-06c1c9197507c6faa" #すぐ消すのでデフォルトのやつをハードコーディング
+      VpcId: "vpc-06c1c9197507c6faa" #すぐ消すのですでにあったデフォルトVPCをハードコーディング
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: !Ref MyIP
+          CidrIp: !Ref AllowIP
 
   EC2:
     Type: "AWS::EC2::Instance"
@@ -38,3 +37,44 @@ Resources:
       Tags:
         - Key: Name
           Value: Batch-S3
+      IamInstanceProfile: !Ref S3AccessInstanceProfile
+
+  #S3のフルアクセスポリシー
+  S3AccessPolicy:
+    Description: "S3Accessロールの許可ポリシーとして使用"
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: S3Access
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:*"
+            Resource: "*"
+      Roles:
+        - !Ref S3AccessRole
+
+  # EC2インスタンスに付与するロールを作成
+  S3AccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: S3Access
+      AssumeRolePolicyDocument: # 信頼ポリシーのこと
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - ec2.amazonaws.com #ec2
+      Path: "/"
+
+  # EC2インスタンスとロールを紐つけるためのプロファイル
+  S3AccessInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref S3AccessRole
