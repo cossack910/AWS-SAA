@@ -26,9 +26,9 @@ Resources:
   EC2:
     Type: "AWS::EC2::Instance"
     Properties:
-      ImageId: ami-0506f0f56e3a057a4 #無料利用枠 AmazonLinux2023
+      ImageId: ami-0506f0f56e3a057a4 # 無料利用枠 AmazonLinux2023
       KeyName: !Ref KeyPair # スタックの作成・更新時に入力されたキーペアを設定する
-      InstanceType: t2.micro #無料利用枠
+      InstanceType: t2.micro # 無料利用枠
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
@@ -39,7 +39,7 @@ Resources:
           Value: Batch-S3
       IamInstanceProfile: !Ref S3AccessInstanceProfile
 
-  #S3のフルアクセスポリシー
+  # S3のフルアクセスポリシー
   S3AccessPolicy:
     Description: "S3Accessロールの許可ポリシーとして使用"
     Type: "AWS::IAM::Policy"

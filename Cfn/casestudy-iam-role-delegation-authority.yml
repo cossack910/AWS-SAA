@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "IAMロールの権限移譲用Cfn"
+
+Parameters:
+  AccountAUserName:
+    Description: ロールの権限移譲をするユーザー名入力
+    Type: String
+
+  AccountBUserName:
+    Description: ロールの権限移譲されるユーザー名入力
+    Type: String
+
+Resources:
+  # 権限移行ポリシー作成
+  ApplicationPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: Application
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "ec2:*"
+              - "elasticloadbalancing:*"
+              - "autoscaling-plans:*"
+              - "rds:*"
+              - "s3:*"
+            Resource: "*"
+      Roles:
+        - !Ref ApplicationAccountARole
+
+  AccountAPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        PasswordLength: 16
+        SecretStringTemplate: "{}"
+
+  AccountA:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref AccountAUserName
+      Path: "/"
+      LoginProfile:
+        Password: !Sub "{{resolve:secretsmanager:${AccountAPassword}:SecretString:password::}}"
+
+  ApplicationAccountARole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ApplicationAccountA
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              AWS:
+                - !Ref AWS::AccountId
+      Path: "/"
+
+  AccountBPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        PasswordLength: 16
+        SecretStringTemplate: "{}"
+
+  AccountB:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref AccountBUserName
+      Path: "/"
+      LoginProfile:
+        Password: !Sub "{{resolve:secretsmanager:${AccountBPassword}:SecretString:password::}}"
+
+  AccountBPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: AccountBPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "sts:AssumeRole"
+            Resource: !GetAtt AccountA.Arn
+      Users:
+        - !Ref AccountB
+
+# password出力
+Outputs:
+  GetSecretValueByCLI:
+    Value: !Sub |+
+      aws secretsmanager get-secret-value
+        --secret-id ${AccountAPassword}
+        --secret-id ${AccountBPassword}
+        --region ${AWS::Region}
+        --query SecretString
