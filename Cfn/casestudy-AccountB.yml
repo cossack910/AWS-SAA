@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "IAMロールの権限移譲される側の設定Cfn"
+
+Parameters:
+  ApplicationAccountBRoleArn:
+    Description: 権限移譲する別AWSアカウントロールのArnを入力
+    Type: String
+
+  IAMUserName:
+    Description: 権限移譲されるユーザーを作成
+    Type: String
+
+Resources:
+  # 権限移行ポリシー作成
+  ApplicationPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: ApplicationAccountB
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "sts:AssumeRole"
+            Resource:
+              - !Ref ApplicationAccountBRoleArn
+      Users:
+        - !Ref IAMUser
+
+  # User及び認証情報作成
+  IAMUserPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        PasswordLength: 16
+        SecretStringTemplate: "{}"
+
+  IAMUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref IAMUserName
+      Path: "/"
+      LoginProfile:
+        Password: !Sub "{{resolve:secretsmanager:${IAMUserPassword}:SecretString:password::}}"

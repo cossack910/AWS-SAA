@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "IAMロールの権限移譲する側の設定Cfn"
+
+Parameters:
+  AccountID:
+    Description: 権限移譲を実施するAWSアカウントを入力
+    Type: String
+
+Resources:
+  # 権限移行ポリシー作成してロールに付与
+  ApplicationPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: Application
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "ec2:*"
+              - "elasticloadbalancing:*"
+              - "autoscaling-plans:*"
+              - "rds:*"
+              - "s3:*"
+            Resource: "*"
+      Roles:
+        - !Ref ApplicationAccountBRole
+
+  # 権限移譲用ロール
+  ApplicationAccountBRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ApplicationAccountB
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              AWS:
+                - !Ref AccountID # 権限移譲するAWSアカウントのIDを信頼エンティのソースにする
+      Path: "/"
