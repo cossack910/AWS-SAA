@@ -1,5 +1,19 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "stack casestudy-iam"
+
+Parameters:
+  EngineerName1:
+    Description: エンジニア1名前
+    Type: String
+
+  EngineerName2:
+    Description: エンジニア2名前
+    Type: String
+
+  OperatorName:
+    Description: オペレーター名前
+    Type: String
+
 Resources:
   # グループ作成
   ApplicationGroup:
@@ -23,21 +37,9 @@ Resources:
           - Effect: Allow
             Action:
               - "ec2:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
               - "elasticloadbalancing:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
               - "autoscaling-plans:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
               - "rds:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
               - "s3:*"
             Resource: "*"
       Groups:
@@ -54,13 +56,7 @@ Resources:
           - Effect: Allow
             Action:
               - "cloudwatch:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
               - "cloudtrail:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
               - "config:*"
             Resource: "*"
       Groups:
@@ -78,7 +74,7 @@ Resources:
   Engineer1:
     Type: AWS::IAM::User
     Properties:
-      UserName: "CaseStudy-Engineer1"
+      UserName: !Ref EngineerName1
       Path: "/"
       LoginProfile:
         Password: !Sub "{{resolve:secretsmanager:${Engineer1Password}:SecretString:password::}}"
@@ -96,7 +92,7 @@ Resources:
   Engineer2:
     Type: AWS::IAM::User
     Properties:
-      UserName: "CaseStudy-Engineer2"
+      UserName: !Ref EngineerName2
       Path: "/"
       LoginProfile:
         Password: !Sub "{{resolve:secretsmanager:${Engineer2Password}:SecretString:password::}}"
@@ -114,7 +110,7 @@ Resources:
   Operater:
     Type: AWS::IAM::User
     Properties:
-      UserName: "CaseStudy-Operater"
+      UserName: !Ref OperatorName
       Path: "/"
       LoginProfile:
         Password: !Sub "{{resolve:secretsmanager:${OperaterPassword}:SecretString:password::}}"

@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "permission boundary"
+
+Parameters:
+  EngineerName1:
+    Description: エンジニア1名前
+    Type: String
+
+Resources:
+  # グループ作成
+  ApplicationGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: "Application"
+
+  # ポリシー作成
+  ApplicationPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: Application
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "ec2:*"
+              - "elasticloadbalancing:*"
+              - "autoscaling-plans:*"
+              - "rds:*"
+              - "s3:*"
+            Resource: "*"
+      Groups:
+        - !Ref ApplicationGroup
+
+  Engineer1Password:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: password
+        PasswordLength: 16
+        SecretStringTemplate: "{}"
+
+  Engineer1:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref EngineerName1
+      Path: "/"
+      LoginProfile:
+        Password: !Sub "{{resolve:secretsmanager:${Engineer1Password}:SecretString:password::}}"
+      Groups:
+        - !Ref ApplicationGroup
