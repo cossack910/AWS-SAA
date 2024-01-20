@@ -7,31 +7,6 @@ Parameters:
     Type: String
 
 Resources:
-  # グループ作成
-  ApplicationGroup:
-    Type: AWS::IAM::Group
-    Properties:
-      GroupName: "Application"
-
-  # ポリシー作成
-  ApplicationPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: Application
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - "ec2:*"
-              - "elasticloadbalancing:*"
-              - "autoscaling-plans:*"
-              - "rds:*"
-              - "s3:*"
-            Resource: "*"
-      Groups:
-        - !Ref ApplicationGroup
-
   Engineer1Password:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -47,5 +22,6 @@ Resources:
       Path: "/"
       LoginProfile:
         Password: !Sub "{{resolve:secretsmanager:${Engineer1Password}:SecretString:password::}}"
-      Groups:
-        - !Ref ApplicationGroup
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      PermissionsBoundary: arn:aws:iam::aws:policy/PowerUserAccess
