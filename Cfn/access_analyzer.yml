@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: アクセスアナライザー設定
+
+Parameters:
+  AccountID:
+    Description: Account IDを入力
+    Type: String
+
+Resources:
+  AccessAnalyzer:
+    Type: AWS::AccessAnalyzer::Analyzer
+    Properties:
+      Type: ACCOUNT
+      ArchiveRules:
+        - Filter:
+            - Property: principal.AWS
+              Eq:
+                - !Ref AccountID
+          RuleName: ArchiveOfTrustedID
+
+Outputs:
+  AccessAnalyzerOutput:
+    Value: !Ref AccessAnalyzer
