@@ -99,6 +99,7 @@ Resources:
       SubnetId: !Ref PublicSubnet2
       RouteTableId: !Ref PublicRouteTable2
 
+  # private subnet1
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -112,6 +113,7 @@ Resources:
         - Key: Name
           Value: PrivateSubnet1
 
+  # private subnet2
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -124,3 +126,32 @@ Resources:
       Tags:
         - Key: Name
           Value: PrivateSubnet2
+
+  PrivateRouteTable2:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VPC
+      NatGatewayId: !Ref NATGateway
+      Tags:
+        - Key: Name
+          Value: "private-route-2"
+
+  PrivateSubnetCRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref PrivateSubnet2
+      RouteTableId: !Ref PrivateRouteTable2
+
+  NATGateway:
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId: !GetAtt NATGatewayAEIP.AllocationId
+      SubnetId: !Ref PublicSubnet2
+      Tags:
+        - Key: Name
+          Value: "nat-test"
+
+  NATGatewayAEIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
